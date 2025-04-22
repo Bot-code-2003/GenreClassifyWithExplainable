@@ -1,0 +1,13 @@
+Flask
+flask-cors
+
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+joblib
+nltk
+imblearn
+imbalanced-learn
+lime

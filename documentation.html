@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genre Classifier Documentation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-dark: #0f172a;
+        --bg-sidebar: #1e293b;
+        --bg-card: #1e293b;
+        --bg-code: #0f172a;
+        --bg-code-block: #0f172a;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --border-color: #334155;
+        --primary: #8b5cf6;
+        --primary-light: #a78bfa;
+        --primary-dark: #7c3aed;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --method-get: #10b981;
+        --method-post: #8b5cf6;
+        --method-put: #3b82f6;
+        --method-delete: #ef4444;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html.dark {
+        color-scheme: dark;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg-dark);
+        color: var(--text-primary);
+        line-height: 1.6;
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 280px;
+        background: var(--bg-sidebar);
+        border-right: 1px solid var(--border-color);
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        overflow-y: auto;
+        z-index: 10;
+      }
+
+      .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .logo-icon {
+        width: 2rem;
+        height: 2rem;
+        background: linear-gradient(135deg, var(--primary), var(--info));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+      }
+
+      .sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .sidebar-version {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        background: var(--bg-dark);
+        color: var(--text-secondary);
+        margin-left: auto;
+      }
+
+      .sidebar-content {
+        padding: 1.5rem 0;
+      }
+
+      .sidebar-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .sidebar-section-title {
+        padding: 0 1.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+      }
+
+      .nav-list {
+        list-style: none;
+      }
+
+      .nav-item {
+        margin-bottom: 0.25rem;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+      }
+
+      .nav-link:hover {
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .nav-link.active {
+        color: var(--primary-light);
+        background: rgba(139, 92, 246, 0.1);
+        border-left: 2px solid var(--primary);
+      }
+
+      .nav-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.7;
+      }
+
+      .main-content {
+        flex: 1;
+        margin-left: 280px;
+        max-width: calc(100% - 280px);
+      }
+
+      .content-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .header {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .header-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .header-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        max-width: 700px;
+      }
+
+      .section {
+        margin-bottom: 3rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .section-icon {
+        width: 24px;
+        height: 24px;
+        opacity: 0.9;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+      }
+
+      .endpoint-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .method {
+        padding: 0.25rem 0.5rem;
+        font-weight: 500;
+        font-size: 0.75rem;
+        font-family: "Fira Code", monospace;
+        text-transform: uppercase;
+      }
+
+      .method.get {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--method-get);
+      }
+
+      .method.post {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--method-post);
+      }
+
+      .method.put {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--method-put);
+      }
+
+      .method.delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--method-delete);
+      }
+
+      .endpoint-path {
+        font-family: "Fira Code", monospace;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .endpoint-body {
+        padding: 1.5rem;
+      }
+
+      .endpoint-description {
+        margin-bottom: 1.5rem;
+      }
+
+      .code-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .code-block-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+
+      .code-header {
+        background: var(--bg-code);
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-bottom: none;
+        font-family: "Fira Code", monospace;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      pre {
+        background: var(--bg-code-block);
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        overflow-x: auto;
+        margin: 0;
+      }
+
+      pre code {
+        font-family: "Fira Code", monospace;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        background: none;
+        padding: 0;
+      }
+
+      code {
+        font-family: "Fira Code", monospace;
+        background: var(--bg-code);
+        padding: 0.2rem 0.4rem;
+        font-size: 0.85rem;
+        color: var(--primary-light);
+      }
+
+      .property {
+        color: #a78bfa; /* Purple */
+      }
+
+      .string {
+        color: #34d399; /* Green */
+      }
+
+      .number {
+        color: #fbbf24; /* Yellow */
+      }
+
+      .keyword {
+        color: #f87171; /* Red */
+      }
+
+      .punctuation {
+        color: #94a3b8; /* Gray */
+      }
+
+      .copy-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.75rem;
+        transition: color 0.2s;
+      }
+
+      .copy-btn:hover {
+        color: var(--text-primary);
+      }
+
+      .copy-icon {
+        width: 14px;
+        height: 14px;
+      }
+
+      .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+
+      .tech-badge {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--primary-light);
+        padding: 0.3rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .pipeline-step {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+        position: relative;
+      }
+
+      .pipeline-step::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.5rem;
+        width: 8px;
+        height: 8px;
+        background: var(--primary);
+      }
+
+      .pipeline-step::after {
+        content: "";
+        position: absolute;
+        left: 3px;
+        top: 1rem;
+        bottom: -1rem;
+        width: 2px;
+        background: var(--border-color);
+      }
+
+      .pipeline-step:last-child::after {
+        display: none;
+      }
+
+      .pipeline-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      footer {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 2rem;
+        border-top: 1px solid var(--border-color);
+        font-size: 0.875rem;
+      }
+
+      footer a {
+        color: var(--primary-light);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      footer a:hover {
+        color: var(--text-primary);
+      }
+
+      .mobile-nav-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 20;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+
+        padding: 0.5rem;
+        cursor: pointer;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+        }
+
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+          max-width: 100%;
+        }
+
+        .mobile-nav-toggle {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="mobile-nav-toggle" id="mobileNavToggle">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    </button>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">🧠</div>
+        <div class="sidebar-title">Genre Classifier</div>
+        <div class="sidebar-version">v1.0</div>
+      </div>
+
+      <div class="sidebar-content">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Introduction</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="#overview" class="nav-link active">
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Overview
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">API Reference</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="#predict" class="nav-link">
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+                POST /predict
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#explain" class="nav-link">
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                POST /explain
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#genres" class="nav-link">
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
+                  />
+                </svg>
+                GET /genres
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#health" class="nav-link">
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                GET /health
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Resources</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="#pipeline" class="nav-link">
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                  />
+                </svg>
+                Model Pipeline
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="index.html" class="nav-link">
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+                Back to App
+              </a>
+            </li>
+            <li class="nav-item">
+              <!-- <a
+                href="https://github.com/bot-code-2003"
+                target="_blank"
+                class="nav-link"
+              > -->
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                  />
+                </svg>
+                GitHub
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="header">
+          <h1 class="header-title">Genre Classifier</h1>
+          <p class="header-subtitle">
+            A machine learning model that classifies textual summaries into
+            literary genres like Fantasy, Crime, Romance, Horror, and more.
+          </p>
+        </div>
+
+        <section id="overview" class="section">
+          <h2 class="section-title">
+            <svg
+              class="section-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Overview
+          </h2>
+
+          <div
+            class="overview-content"
+            style="display: grid; gap: 2rem; margin-top: 1.5rem"
+          >
+            <!-- Main Description -->
+            <div>
+              <p>
+                The Genre Classifier is a machine learning-based application
+                designed to identify the literary genre of a given text input
+                such as a story summary, a plot description, or a short
+                paragraph. It supports 10 popular genres including
+                <strong>Fantasy</strong>, <strong>Horror</strong>,
+                <strong>Romance</strong>, <strong>Science Fiction</strong>,
+                <strong>Crime</strong>, and more.
+              </p>
+
+              <p style="margin-top: 1rem">
+                The system is powered by a trained ensemble model combining
+                logistic regression, random forests, and gradient boosting
+                techniques. Text inputs undergo TF-IDF vectorization and are
+                balanced using SMOTE to address class imbalances in the training
+                dataset.
+              </p>
+            </div>
+
+            <!-- Explainable AI Section -->
+            <div>
+              <h3
+                style="
+                  font-size: 1.25rem;
+                  font-weight: 600;
+                  margin-bottom: 1rem;
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                "
+              >
+                <svg
+                  style="width: 20px; height: 20px"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  />
+                </svg>
+                Explainable AI
+              </h3>
+
+              <p>
+                A major feature of this application is its integration of
+                <strong
+                  >LIME (Local Interpretable Model-agnostic
+                  Explanations)</strong
+                >, which allows users to visualize which words influenced the
+                prediction and to what degree. This enhances transparency and
+                trust in model predictions.
+              </p>
+
+              <p style="margin-top: 1rem">
+                The frontend interface provides an intuitive user experience,
+                with confidence scores and an interactive bar chart built using
+                Chart.js. For deeper insight, users can generate detailed
+                explanations that reveal how the model interprets different
+                genre possibilities.
+              </p>
+            </div>
+
+            <!-- Tech Stack Section -->
+            <div>
+              <h3
+                style="
+                  font-size: 1.25rem;
+                  font-weight: 600;
+                  margin-bottom: 1rem;
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                "
+              >
+                <svg
+                  style="width: 20px; height: 20px"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+                Tech Stack
+              </h3>
+
+              <div class="tech-stack">
+                <span class="tech-badge">Python</span>
+                <span class="tech-badge">Flask</span>
+                <span class="tech-badge">scikit-learn</span>
+                <span class="tech-badge">SMOTE</span>
+                <span class="tech-badge">NLTK</span>
+                <span class="tech-badge">LIME</span>
+                <span class="tech-badge">Matplotlib</span>
+                <!-- <span class="tech-badge">Chart.js</span> -->
+                <span class="tech-badge">HTML & JS</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="predict" class="section">
+          <h2 class="section-title">
+            <svg
+              class="section-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+            Predict Endpoint
+          </h2>
+
+          <div class="card">
+            <div class="endpoint-header">
+              <span class="method post">POST</span>
+              <span class="endpoint-path">/predict</span>
+            </div>
+            <div class="endpoint-body">
+              <div class="endpoint-description">
+                <p>Predicts the genre of the submitted text.</p>
+              </div>
+
+              <div class="code-label">
+                <span>Request Body</span>
+              </div>
+              <div class="code-block-wrapper">
+                <div class="code-header">
+                  <span>JSON</span>
+                  <button
+                    class="copy-btn"
+                    data-clipboard-target="#predict-request"
+                  >
+                    <svg
+                      class="copy-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="predict-request"><span class="punctuation">{</span>
+  <span class="property">"text"</span>: <span class="string">"A group of friends explore an ancient castle filled with dark secrets..."</span>
+<span class="punctuation">}</span></code></pre>
+              </div>
+
+              <div class="code-label">
+                <span>Response</span>
+                <span>200 OK</span>
+              </div>
+              <div class="code-block-wrapper">
+                <div class="code-header">
+                  <span>JSON</span>
+                  <button
+                    class="copy-btn"
+                    data-clipboard-target="#predict-response"
+                  >
+                    <svg
+                      class="copy-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="predict-response"><span class="punctuation">{</span>
+  <span class="property">"predicted_genre"</span>: <span class="string">"horror"</span>,
+  <span class="property">"confidence"</span>: <span class="number">0.72</span>,
+  <span class="property">"prediction_probabilities"</span>: <span class="punctuation">{</span>
+    <span class="property">"fantasy"</span>: <span class="number">0.08</span>,
+    <span class="property">"horror"</span>: <span class="number">0.72</span>,
+    <span class="property">"crime"</span>: <span class="number">0.12</span>,
+    <span class="property">"romance"</span>: <span class="number">0.03</span>,
+    <span class="property">"history"</span>: <span class="number">0.05</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="explain" class="section">
+          <h2 class="section-title">
+            <svg
+              class="section-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Explain Endpoint
+          </h2>
+
+          <div class="card">
+            <div class="endpoint-header">
+              <span class="method post">POST</span>
+              <span class="endpoint-path">/explain</span>
+            </div>
+            <div class="endpoint-body">
+              <div class="endpoint-description">
+                <p>Opens an HTML visual explanation using LIME.</p>
+              </div>
+
+              <div class="code-label">
+                <span>Request Body</span>
+              </div>
+              <div class="code-block-wrapper">
+                <div class="code-header">
+                  <span>JSON</span>
+                  <button
+                    class="copy-btn"
+                    data-clipboard-target="#explain-request"
+                  >
+                    <svg
+                      class="copy-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="explain-request"><span class="punctuation">{</span>
+  <span class="property">"text"</span>: <span class="string">"A group of friends explore an ancient castle filled with dark secrets..."</span>
+<span class="punctuation">}</span></code></pre>
+              </div>
+
+              <div class="code-label">
+                <span>Response</span>
+                <span>200 OK</span>
+              </div>
+              <div class="endpoint-description">
+                <p><strong>Output:</strong> Opens a webpage with:</p>
+                <ul>
+                  <li>Predicted genre</li>
+                  <li>Top contributing words</li>
+                  <li>Chart of LIME word importances</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="genres" class="section">
+          <h2 class="section-title">
+            <svg
+              class="section-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
+              />
+            </svg>
+            Genres Endpoint
+          </h2>
+
+          <div class="card">
+            <div class="endpoint-header">
+              <span class="method get">GET</span>
+              <span class="endpoint-path">/genres</span>
+            </div>
+            <div class="endpoint-body">
+              <div class="endpoint-description">
+                <p>Returns a mapping of label indexes to genre names.</p>
+              </div>
+
+              <div class="code-label">
+                <span>Response</span>
+                <span>200 OK</span>
+              </div>
+              <div class="code-block-wrapper">
+                <div class="code-header">
+                  <span>JSON</span>
+                  <button
+                    class="copy-btn"
+                    data-clipboard-target="#genres-response"
+                  >
+                    <svg
+                      class="copy-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="genres-response"><span class="punctuation">{</span>
+  <span class="property">"0"</span>: <span class="string">"crime"</span>,
+  <span class="property">"1"</span>: <span class="string">"fantasy"</span>,
+  <span class="property">"2"</span>: <span class="string">"history"</span>,
+  <span class="property">"3"</span>: <span class="string">"horror"</span>,
+  <span class="property">"4"</span>: <span class="string">"romance"</span>,
+  <span class="property">"5"</span>: <span class="string">"science_fiction"</span>
+<span class="punctuation">}</span></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="health" class="section">
+          <h2 class="section-title">
+            <svg
+              class="section-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Health Endpoint
+          </h2>
+
+          <div class="card">
+            <div class="endpoint-header">
+              <span class="method get">GET</span>
+              <span class="endpoint-path">/health</span>
+            </div>
+            <div class="endpoint-body">
+              <div class="endpoint-description">
+                <p>Simple endpoint to check if server is alive.</p>
+              </div>
+
+              <div class="code-label">
+                <span>Response</span>
+                <span>200 OK</span>
+              </div>
+              <div class="code-block-wrapper">
+                <div class="code-header">
+                  <span>JSON</span>
+                  <button
+                    class="copy-btn"
+                    data-clipboard-target="#health-response"
+                  >
+                    <svg
+                      class="copy-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2
+                      2 0 012 2v2m-6 12h8a2 2 0 002- stroke-width="2" d="M8
+                      16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2
+                      2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="health-response"><span class="punctuation">{</span>
+  <span class="property">"status"</span>: <span class="string">"ok"</span>
+<span class="punctuation">}</span></code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="pipeline" class="section">
+          <h2 class="section-title">
+            <svg
+              class="section-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+              />
+            </svg>
+            Model Pipeline
+          </h2>
+
+          <div class="pipeline-step">
+            <div class="pipeline-title">1. Preprocessing</div>
+            <p>
+              Input text is normalized through several NLP operations:
+              <strong>lowercasing</strong>,
+              <strong>punctuation removal</strong>,
+              <strong>stopword removal</strong>, and
+              <strong>lemmatization</strong> using <code>nltk</code>. This
+              ensures consistent representation and reduces noise before
+              vectorization.
+            </p>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-title">2. Feature Extraction</div>
+            <p>
+              The cleaned text is converted into numerical form using
+              <strong>TF-IDF vectorization</strong>, capturing both term
+              frequency and inverse document frequency. We use
+              <em>unigrams</em> and <em>bigrams</em> (1-2 word phrases) with a
+              max feature limit of 10,000 to retain semantic richness while
+              avoiding overfitting.
+            </p>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-title">3. Data Balancing</div>
+            <p>
+              Genre distributions are naturally imbalanced. To mitigate this, we
+              use
+              <strong>SMOTE</strong> (Synthetic Minority Over-sampling
+              Technique), which generates synthetic examples for
+              underrepresented genres — ensuring the model trains equally across
+              all classes.
+            </p>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-title">4. Model Training</div>
+            <p>
+              An <strong>ensemble voting classifier</strong> is trained using
+              three base models: <code>Logistic Regression</code>,
+              <code>Random Forest</code>, and <code>Gradient Boosting</code>.
+              Soft voting is used to average their predicted probabilities,
+              yielding a robust and generalizable final output.
+            </p>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-title">5. Explainability</div>
+            <p>
+              Post-prediction, we apply <strong>LIME</strong> (Local
+              Interpretable Model-agnostic Explanations) to understand why a
+              genre was selected. It highlights key words that influenced the
+              model decision, making the black-box prediction process
+              transparent and interpretable for end users.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <footer>
+        <!-- Made with ❤️ by
+        <a href="https://github.com/bot-code-2003" target="_blank"
+          >Dharmadeep Madisetty</a
+        > -->
+        •
+        <a href="index.html">Back to Classifier</a>
+      </footer>
+    </main>
+
+    <script>
+      // Mobile navigation toggle
+      document
+        .getElementById("mobileNavToggle")
+        .addEventListener("click", function () {
+          document.getElementById("sidebar").classList.toggle("active");
+        });
+
+      // Highlight active navigation item based on scroll position
+      const sections = document.querySelectorAll(".section");
+      const navLinks = document.querySelectorAll(".nav-link");
+
+      function setActiveLink() {
+        let current = "";
+
+        sections.forEach((section) => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= sectionTop - 200) {
+            current = section.getAttribute("id");
+          }
+        });
+
+        navLinks.forEach((link) => {
+          link.classList.remove("active");
+          if (link.getAttribute("href").substring(1) === current) {
+            link.classList.add("active");
+          }
+        });
+      }
+
+      window.addEventListener("scroll", setActiveLink);
+      window.addEventListener("load", setActiveLink);
+
+      // Copy code functionality
+      document.querySelectorAll(".copy-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const codeId = button.getAttribute("data-clipboard-target");
+          const codeElement = document.querySelector(codeId);
+          const code = codeElement.textContent;
+
+          navigator.clipboard.writeText(code).then(() => {
+            const originalText = button.innerHTML;
+            button.innerHTML = `
+            <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Copied!
+          `;
+
+            setTimeout(() => {
+              button.innerHTML = originalText;
+            }, 2000);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

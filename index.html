@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genre Classifier</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-dark: #0f172a;
+        --bg-card: #1e293b;
+        --bg-code: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --border-color: #334155;
+        --primary: #8b5cf6;
+        --primary-light: #a78bfa;
+        --primary-dark: #7c3aed;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html.dark {
+        color-scheme: dark;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg-dark);
+        color: var(--text-primary);
+        line-height: 1.6;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        transition: all 0.2s ease;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .logo-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: linear-gradient(135deg, var(--primary), var(--info));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .nav-link {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .nav-link:hover {
+        color: var(--primary-light);
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .nav-links {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+      }
+
+      .card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      .input-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+
+      textarea {
+        width: 100%;
+        height: 180px;
+        background: var(--bg-dark);
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        resize: vertical;
+        transition: border 0.2s ease;
+        font-family: inherit;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+      }
+
+      .button-group {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      button {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.25rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      button:hover {
+        background-color: var(--primary-dark);
+      }
+
+      button.secondary {
+        background-color: transparent;
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+      }
+
+      button.secondary:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      .icon {
+        width: 18px;
+        height: 18px;
+      }
+
+      .result-section {
+        display: none;
+      }
+
+      .result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+      }
+
+      .genre-badge {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(135deg, var(--primary), var(--info));
+        color: white;
+        padding: 0.3rem 1rem;
+
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: capitalize;
+      }
+
+      .confidence {
+        font-size: 0.875rem;
+        background: rgba(16, 185, 129, 0.1);
+        padding: 0.3rem 0.75rem;
+
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: var(--success);
+        font-weight: 500;
+      }
+
+      .chart-container {
+        margin-top: 1.5rem;
+        height: 250px;
+        width: 100%;
+      }
+
+      canvas {
+        max-height: 100%;
+        width: 100% !important;
+      }
+
+      footer {
+        margin-top: 3rem;
+        text-align: center;
+        color: var(--text-muted);
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        font-size: 0.875rem;
+      }
+
+      footer a {
+        color: var(--primary-light);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      footer a:hover {
+        color: var(--text-primary);
+      }
+
+      .loader {
+        display: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading button {
+        opacity: 0.7;
+        pointer-events: none;
+      }
+
+      .loading .loader {
+        display: inline-block;
+      }
+
+      .keyboard-shortcut {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-left: auto;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+      }
+
+      .key {
+        background: var(--bg-code);
+        padding: 0.15rem 0.4rem;
+        font-family: monospace;
+      }
+
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: var(--bg-code);
+        color: var(--text-primary);
+        text-align: center;
+        padding: 0.5rem;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.75rem;
+      }
+
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: var(--bg-code) transparent transparent transparent;
+      }
+
+      .placeholder-text {
+        color: var(--text-muted);
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.9rem;
+      }
+
+      .placeholder-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      /* Story Cards Styles */
+      .story-cards-section {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .story-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+
+      .story-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .story-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-light);
+      }
+
+      .story-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--primary), var(--info));
+      }
+
+      .story-card-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        color: var(--primary-light);
+      }
+
+      .story-card-genre {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        text-transform: capitalize;
+      }
+
+      .story-card-content {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">🧠</div>
+        <h1>Genre Classifier</h1>
+      </div>
+      <nav class="nav-links">
+        <a href="#" class="nav-link">
+          <svg
+            class="icon"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            />
+          </svg>
+          Home
+        </a>
+        <a href="documentation.html" class="nav-link">
+          <svg
+            class="icon"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          Documentation
+        </a>
+        <a
+          href="https://github.com/bot-code-2003"
+          target="_blank"
+          class="nav-link"
+        >
+          <svg
+            class="icon"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+            />
+          </svg>
+          GitHub
+        </a>
+      </nav>
+    </header>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg
+              class="icon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Input Text
+          </div>
+          <div class="keyboard-shortcut tooltip">
+            <span class="key">Ctrl</span> + <span class="key">Enter</span>
+            <span class="tooltip-text">Press Ctrl+Enter to predict genre</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <label class="input-label">Enter your story or description:</label>
+          <textarea
+            id="storyText"
+            placeholder="E.g. A boy finds a map to a hidden kingdom guarded by dragons..."
+          ></textarea>
+          <div class="button-group">
+            <button onclick="predict()" id="predictBtn">
+              <svg
+                class="icon"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+              Predict Genre
+              <span class="loader"></span>
+            </button>
+            <button onclick="explain()" class="secondary" id="explainBtn">
+              <svg
+                class="icon"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              Explain
+              <span class="loader"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card result-section" id="resultBox">
+        <div class="card-header">
+          <div class="card-title">
+            <svg
+              class="icon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+            Prediction Results
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="result-header">
+            <div>
+              <div class="input-label">Predicted Genre</div>
+              <span class="genre-badge" id="genre">-</span>
+            </div>
+            <div class="confidence">
+              <svg
+                class="icon"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span id="confidence">-</span>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="genreChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Story Cards Section -->
+    <div class="story-cards-section">
+      <h2 class="section-title">
+        <svg
+          class="icon"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          />
+        </svg>
+        Sample Story Cards
+      </h2>
+      <div class="story-cards">
+        <div class="story-card" onclick="useStoryCard(this)">
+          <div class="story-card-title">The Dragon's Lair</div>
+          <div class="story-card-genre">Fantasy</div>
+          <div class="story-card-content">
+            The young knight ventured deep into the misty mountains, clutching
+            an ancient map that promised to lead him to the dragon's lair.
+            Legends spoke of a treasure beyond imagination, guarded by a beast
+            with scales harder than diamonds and breath that could melt stone.
+            As he approached the cave entrance, he could feel the ground
+            trembling beneath his feet.
+          </div>
+        </div>
+
+        <div class="story-card" onclick="useStoryCard(this)">
+          <div class="story-card-title">The Abandoned Mansion</div>
+          <div class="story-card-genre">Horror</div>
+          <div class="story-card-content">
+            The old mansion stood at the end of Willow Street, abandoned for
+            decades after the mysterious disappearance of the entire Blackwood
+            family. Local children whispered that on moonless nights, lights
+            could be seen moving from window to window, and the faint sound of
+            screaming could be heard. When Sarah's car broke down outside the
+            rusted gates, she had no choice but to seek shelter inside as the
+            storm intensified.
+          </div>
+        </div>
+
+        <div class="story-card" onclick="useStoryCard(this)">
+          <div class="story-card-title">The Perfect Match</div>
+          <div class="story-card-genre">Romance</div>
+          <div class="story-card-content">
+            After three failed relationships and countless disastrous dates,
+            Emma had almost given up on finding love. She poured her heart into
+            long evenings at the cozy little bookstore, surrounded by the
+            timeless beauty of fictional romances. On a rainy afternoon, just as
+            the soft patter of raindrops kissed the windowpanes, a charming
+            stranger stepped in — eyes warm, smile disarming — looking for a
+            book on gardening. Their hands met over the same title, lingering
+            slightly. A spark. A moment. Her heart skipped. They exchanged shy
+            smiles, then laughter over coffee, and suddenly, her world felt full
+            of light again. It wasn’t just a chance meeting — it was the start
+            of something beautifully unexpected. A slow-burn love story written
+            by fate.
+          </div>
+        </div>
+
+        <div class="story-card" onclick="useStoryCard(this)">
+          <div class="story-card-title">The Colony Ship</div>
+          <div class="story-card-genre">Science Fiction</div>
+          <div class="story-card-content">
+            The massive colony ship Artemis had been traveling through deep
+            space for over 200 years, carrying the last survivors of Earth
+            toward a distant habitable planet. Most of the 10,000 passengers
+            remained in cryosleep, but Engineer Chen had been awakened early by
+            the ship's AI to investigate an anomaly in the navigation system.
+            What she discovered would challenge everything the colonists
+            believed about their mission and the fate of humanity.
+          </div>
+        </div>
+
+        <div class="story-card" onclick="useStoryCard(this)">
+          <div class="story-card-title">The Missing Heiress</div>
+          <div class="story-card-genre">Crime</div>
+          <div class="story-card-content">
+            Detective Morgan was called to the luxurious penthouse of
+            billionaire industrialist Robert Harrington, whose daughter had
+            vanished without a trace. The security cameras showed her entering
+            the elevator, but she never reached the lobby. No ransom demand had
+            been made, and her personal belongings remained untouched. As Morgan
+            examined the scene, he noticed a small detail that everyone else had
+            missed – a single cufflink that didn't belong to anyone in the
+            household.
+          </div>
+        </div>
+
+        <div class="story-card" onclick="useStoryCard(this)">
+          <div class="story-card-title">The Battle of Rivercross</div>
+          <div class="story-card-genre">History</div>
+          <div class="story-card-content">
+            In the bitter winter of 1863, two armies faced each other across the
+            frozen Rivercross Valley. General Williams knew that his troops were
+            outnumbered three to one, but the narrow pass offered a strategic
+            advantage that might just save them. As dawn broke on December 17th,
+            the sound of cannons echoed through the mountains, marking the
+            beginning of a battle that would change the course of the war and be
+            studied by military historians for centuries to come.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <!-- Made with ❤️ by
+      <a href="https://github.com/bot-code-2003" target="_blank"
+        >Dharmadeep Madisetty, Dinesh Simha, Idamakanti Roopa Pranavi Reddy</a
+      > -->
+      •
+      <a href="documentation.html">View API Documentation</a>
+    </footer>
+
+    <script>
+      const API = "http://127.0.0.1:5000";
+      let chartRef = null;
+
+      // Initialize the results card with placeholder
+      document.getElementById("resultBox").style.display = "block";
+      document
+        .getElementById("resultBox")
+        .querySelector(".card-body").innerHTML = `
+      <div class="placeholder-text">
+        <div class="placeholder-icon">📊</div>
+        <p>Enter your text and click "Predict Genre" to see results</p>
+      </div>
+    `;
+
+      async function predict() {
+        const text = document.getElementById("storyText").value;
+        if (!text.trim()) {
+          alert("Please enter some text to analyze");
+          return;
+        }
+
+        // Show loading state
+        document.getElementById("predictBtn").classList.add("loading");
+
+        try {
+          const res = await fetch(`${API}/predict`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+
+          if (!res.ok) {
+            throw new Error("API request failed");
+          }
+
+          const data = await res.json();
+
+          // Reset the results card content
+          document
+            .getElementById("resultBox")
+            .querySelector(".card-body").innerHTML = `
+          <div class="result-header">
+            <div>
+              <div class="input-label">Predicted Genre</div>
+              <span class="genre-badge" id="genre">${
+                data.predicted_genre
+              }</span>
+            </div>
+            <div class="confidence">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span id="confidence">${(data.confidence * 100).toFixed(
+                2
+              )}%</span>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="genreChart"></canvas>
+          </div>
+        `;
+
+          const labels = Object.keys(data.prediction_probabilities);
+          const values = Object.values(data.prediction_probabilities);
+
+          if (chartRef) chartRef.destroy();
+
+          const ctx = document.getElementById("genreChart").getContext("2d");
+
+          // Create gradient colors
+          const gradients = [];
+          for (let i = 0; i < labels.length; i++) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, getColorForIndex(i, 0.9));
+            gradient.addColorStop(1, getColorForIndex(i, 0.5));
+            gradients.push(gradient);
+          }
+
+          chartRef = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Probability",
+                  data: values,
+                  backgroundColor: gradients,
+                  borderWidth: 0,
+                  maxBarThickness: 40,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  backgroundColor: "rgba(30, 41, 59, 0.9)",
+                  titleColor: "#f8fafc",
+                  bodyColor: "#f8fafc",
+                  borderColor: "#334155",
+                  borderWidth: 1,
+                  padding: 10,
+                  callbacks: {
+                    label: function (context) {
+                      return (context.raw * 100).toFixed(1) + "%";
+                    },
+                  },
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: function (value) {
+                      return (value * 100).toFixed(0) + "%";
+                    },
+                    color: "#94a3b8",
+                    font: {
+                      size: 11,
+                    },
+                  },
+                  grid: {
+                    color: "rgba(51, 65, 85, 0.5)",
+                    drawBorder: false,
+                  },
+                },
+                x: {
+                  ticks: {
+                    color: "#94a3b8",
+                    font: {
+                      size: 11,
+                    },
+                  },
+                  grid: {
+                    display: false,
+                    drawBorder: false,
+                  },
+                },
+              },
+              animation: {
+                duration: 1000,
+                easing: "easeOutQuart",
+              },
+            },
+          });
+
+          document.getElementById("resultBox").style.display = "block";
+        } catch (error) {
+          console.error("Error:", error);
+          alert(
+            "Failed to get prediction. Please check if the API server is running."
+          );
+        } finally {
+          // Hide loading state
+          document.getElementById("predictBtn").classList.remove("loading");
+        }
+      }
+
+      function getColorForIndex(index, alpha = 1) {
+        const colors = [
+          `rgba(139, 92, 246, ${alpha})`, // Purple (Primary)
+          `rgba(59, 130, 246, ${alpha})`, // Blue
+          `rgba(236, 72, 153, ${alpha})`, // Pink
+          `rgba(16, 185, 129, ${alpha})`, // Green
+          `rgba(245, 158, 11, ${alpha})`, // Amber
+          `rgba(239, 68, 68, ${alpha})`, // Red
+          `rgba(14, 165, 233, ${alpha})`, // Sky
+          `rgba(168, 85, 247, ${alpha})`, // Purple
+          `rgba(34, 211, 238, ${alpha})`, // Cyan
+        ];
+
+        return colors[index % colors.length];
+      }
+
+      async function explain() {
+        const text = document.getElementById("storyText").value;
+        if (!text.trim()) {
+          alert("Please enter some text to analyze");
+          return;
+        }
+
+        // Show loading state
+        document.getElementById("explainBtn").classList.add("loading");
+
+        try {
+          const res = await fetch(`${API}/explain`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+
+          if (!res.ok) {
+            throw new Error("API request failed");
+          }
+
+          const html = await res.text();
+          const w = window.open("", "_blank");
+          w.document.open();
+          w.document.write(html);
+          w.document.close();
+        } catch (error) {
+          console.error("Error:", error);
+          alert(
+            "Failed to get explanation. Please check if the API server is running."
+          );
+        } finally {
+          // Hide loading state
+          document.getElementById("explainBtn").classList.remove("loading");
+        }
+      }
+
+      // Function to use story card content
+      function useStoryCard(card) {
+        const content = card.querySelector(".story-card-content").textContent;
+        document.getElementById("storyText").value = content.trim();
+
+        // Scroll to the input area
+        document
+          .getElementById("storyText")
+          .scrollIntoView({ behavior: "smooth" });
+
+        // Add a subtle highlight effect to the card
+        card.style.transform = "scale(0.98)";
+        card.style.boxShadow = "0 0 0 2px var(--primary)";
+
+        setTimeout(() => {
+          card.style.transform = "";
+          card.style.boxShadow = "";
+        }, 300);
+      }
+
+      // Add keyboard shortcut (Ctrl+Enter) to predict
+      document
+        .getElementById("storyText")
+        .addEventListener("keydown", function (e) {
+          if (e.ctrlKey && e.key === "Enter") {
+            predict();
+          }
+        });
+    </script>
+  </body>
+</html>
